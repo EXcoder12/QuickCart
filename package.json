@@ -15,6 +15,11 @@
     "react-dom": "^19.2.1",
     "react-hot-toast": "^2.5.1"
   },
+  "overrides": {
+    "@clerk/nextjs": {
+      "next": "$next"
+    }
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "eslint": "^9",
