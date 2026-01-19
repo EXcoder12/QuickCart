@@ -17,12 +17,6 @@ export async function POST(req) {
 
     await connectDB();
 
-    // calculate amount 
-    // const amount  = await items.reduce(async (acc, item) => {
-    //   const product = await Product.findById(item.product);
-    //   return await acc + product.offeredPrice * item.quantity;
-    // }, 0);
-
     let amount = 0;
     for (const item of items) {
       const product = await Product.findById(item.product);
@@ -31,7 +25,7 @@ export async function POST(req) {
       }
     }
 
-    const totalAmount = amountn + Math.floor(amount * 0.02); // including 2% tax
+    const totalAmount = amount + Math.floor(amount * 0.02); // including 2% tax
 
     await inngest.send({
       name: 'order/created',
