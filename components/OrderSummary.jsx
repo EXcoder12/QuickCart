@@ -19,12 +19,12 @@ const OrderSummary = () => {
 
   const [userAddresses, setUserAddresses] = useState([]);
 
- const fetchUserAddresses = async () => {
+  const fetchUserAddresses = async () => {
     try {
       const token = await getToken();
-      const { data } = await axios.get('/api/user/get-address', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const { data } = await axios.get("/api/user/get-address", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (data.success) {
         const addresses = data.addresses || [];
@@ -39,13 +39,52 @@ const OrderSummary = () => {
     } catch (error) {
       toast.error(error.message);
     }
-  }
+  };
   const handleAddressSelect = (address) => {
     setSelectedAddress(address);
     setIsDropdownOpen(false);
   };
 
-  const createOrder = async () => {};
+  const createOrder = async () => {
+    try {
+      if (!selectedAddress) {
+        return toast.error("Please select an address");
+      }
+
+      let cartItemsArray = Object.keys(cartItems).map((key) => ({
+        product: key,
+        quantity: cartItems[key],
+      }));
+      cartItemsArray = cartItemsArray.filter((items) => items.quantity > 0);
+
+      if (cartItemsArray.length === 0) {
+        return toast.error("Cart is empty");
+      }
+
+      const token = await getToken();
+
+      const { data } = await axios.post(
+        "/api/order/create",
+        {
+          address: selectedAddress._id,
+          items: cartItemsArray,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        setCartItems({});
+        router.push("/order-placed");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   useEffect(() => {
     if (user) {

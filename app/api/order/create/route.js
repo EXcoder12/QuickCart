@@ -3,6 +3,7 @@ import Product from "@/models/Product";
 import User from "@/models/User";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import connectDB from "@/config/db";
 
 
 export async function POST(req) {
@@ -11,14 +12,26 @@ export async function POST(req) {
     const { address, items } = await req.json();
 
     if(!address || items.length === 0) {
-      return NextResponse({ success: false, message: 'Invalid data'});
+      return NextResponse.json({ success: false, message: 'Invalid data'});
     }
 
+    await connectDB();
+
     // calculate amount 
-    const amount  = await items.reduce(async (acc, item) => {
+    // const amount  = await items.reduce(async (acc, item) => {
+    //   const product = await Product.findById(item.product);
+    //   return await acc + product.offeredPrice * item.quantity;
+    // }, 0);
+
+    let amount = 0;
+    for (const item of items) {
       const product = await Product.findById(item.product);
-      return acc + product.offeredPrice * item.quantity;
-    }, 0);
+      if (product) {
+        amount += product.offerPrice * item.quantity;
+      }
+    }
+
+    const totalAmount = amountn + Math.floor(amount * 0.02); // including 2% tax
 
     await inngest.send({
       name: 'order/created',
@@ -26,7 +39,7 @@ export async function POST(req) {
         userId,
         address,
         items,
-        amount: amount + Math.floor(amount * 0.02),
+        amount: totalAmount,
         date: Date.now()
       }
     })
