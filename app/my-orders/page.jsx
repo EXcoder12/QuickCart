@@ -32,6 +32,8 @@ const MyOrders = () => {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally{
+      setLoading(false);
     }
   };
 
